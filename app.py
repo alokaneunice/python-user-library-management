@@ -7,7 +7,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret keys'
 
 def get_db_connect():
-    conn = sqlite3.connect('database.db')
+    #init_db()
+    conn = sqlite3.connect('db.db')
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -20,7 +21,7 @@ def new():
 @app.route('/')
 def index():
     conn = get_db_connect()
-    collects = conn.execute('SELECT * FROM book').fetchall()
+    collects = conn.execute('SELECT * FROM books').fetchall()
     conn.close()
     return render_template('index.html', collects=collects)
 
@@ -28,7 +29,7 @@ def index():
 
 def get_post(post_id):
     conn = get_db_connect()
-    post = conn.execute('SELECT * FROM book WHERE id = ?',
+    post = conn.execute('SELECT * FROM books WHERE id = ?',
                         (post_id,)).fetchone()
     conn.close()
     if post is None:
@@ -56,7 +57,7 @@ def edit(id):
 
         else:
             conn = get_db_connect()
-            conn.execute('UPDATE book SET title = ?, author = ?, quantity = ?'
+            conn.execute('UPDATE books SET title = ?, author = ?, quantity = ?'
                          ' WHERE id = ?',
                          (title, author,quantity, id))
             conn.commit()
@@ -79,7 +80,7 @@ def create():
             flash('Content is required!')
         else:
             conn = get_db_connect()
-            conn.execute('INSERT INTO book (title, author,quantity) VALUES (?, ?, ?)',
+            conn.execute('INSERT INTO books (title, author,quantity) VALUES (?, ?, ?)',
                          (title,author,quantity))
             conn.commit()
             conn.close()
@@ -94,7 +95,7 @@ def create():
 def delete(id):
     post = get_post(id)
     conn = get_db_connect()
-    conn.execute('DELETE FROM book WHERE id = ?', (id,))
+    conn.execute('DELETE FROM books WHERE id = ?', (id,))
     conn.commit()
     conn.close()
     flash('"{}" was successfully deleted!'.format(post['title']))
